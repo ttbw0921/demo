@@ -23,17 +23,6 @@ USERS = ["担当者A", "担当者B", "担当者C"]
 st.set_page_config(page_title="在庫管理システムDEMO", layout="wide")
 
 # --- 2. GitHub関数 ---
-def get_github_data(file_path):
-    url = f"https://api.github.com/repos/{REPO_NAME}/contents/{file_path}"
-    headers = {"Authorization": f"token {GITHUB_TOKEN}"}
-    res = requests.get(url, headers=headers)
-    if res.status_code == 200:
-        content = res.json()
-        csv_text = base64.b64decode(content["content"]).decode("utf-8")
-        df = pd.read_csv(StringIO(csv_text))
-        return df.fillna(""), content["sha"]
-    return pd.DataFrame(), None
-
 def update_github_data(file_path, df, sha, message):
     url = f"https://api.github.com/repos/{REPO_NAME}/contents/{file_path}"
     headers = {"Authorization": f"token {GITHUB_TOKEN}"}
@@ -44,7 +33,14 @@ def update_github_data(file_path, df, sha, message):
         "sha": sha
     }
     res = requests.put(url, headers=headers, json=data)
-    return res.status_code == 200
+    
+    # 🌟 エラーが起きたら画面上部に赤いボックスで原因を表示する
+    if res.status_code not in [200, 201]:
+        st.error(f"❌ GitHub更新エラー ({file_path}): ステータスコード {res.status_code}")
+        st.json(res.json()) # エラーメッセージの生データを表示
+        return False
+        
+    return True
 
 # 予約を自動処理する関数
 def process_reservations(df_stock, sha_stock, df_log, sha_log):
