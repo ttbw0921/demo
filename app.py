@@ -44,6 +44,11 @@ def update_github_data(file_path, df, sha, message):
         "sha": sha
     }
     res = requests.put(url, headers=headers, json=data)
+    
+    # 💡 ここから下の4行を追加して、エラー内容を画面に出すようにします！
+    if res.status_code != 200:
+        st.error(f"❌ GitHub通信エラー ({file_path}): ステータスコード {res.status_code}")
+        st.error(res.text) # 詳しいエラー理由を表示
     return res.status_code == 200
 
 # 予約を自動処理する関数
