@@ -13,7 +13,7 @@ FILE_PATH_MASTER = "item_master.csv"
 FILE_PATH_RESERVATION = "reservations_main.csv"  # 予約データ用に追加
 GITHUB_TOKEN = st.secrets["GITHUB_TOKEN"]
 
-st.set_page_config(page_title="出庫分析", layout="wide")
+st.set_page_config(page_title="出庫分析 DEMO", layout="wide")
 
 @st.cache_data(ttl=60)
 def get_github_data(file_path):
@@ -48,7 +48,7 @@ df_res_raw = get_github_data(FILE_PATH_RESERVATION)
 if df_master.empty:
     df_master = pd.DataFrame(columns=["商品名", "サイズ", "入り数"])
 
-st.title("📈 在庫動態分析")
+st.title("📈 在庫動態分析 DEMO")
 
 if not df_log_raw.empty:
     # --- データ前処理 ---
