@@ -23,16 +23,24 @@ USERS = ["担当者A", "担当者B", "担当者C"]
 st.set_page_config(page_title="在庫管理システムDEMO", layout="wide")
 
 # --- 2. GitHub関数 ---
+# --- 2. GitHub関数 ---
 def get_github_data(file_path):
+    # ここに「今どのファイルを読み込もうとしているか」を表示させるコードを追加するよ
+    st.sidebar.write(f"読み込み中: {file_path}") 
+    
     url = f"https://api.github.com/repos/{REPO_NAME}/contents/{file_path}"
     headers = {"Authorization": f"token {GITHUB_TOKEN}"}
     res = requests.get(url, headers=headers)
+    
     if res.status_code == 200:
         content = res.json()
         csv_text = base64.b64decode(content["content"]).decode("utf-8")
         df = pd.read_csv(StringIO(csv_text))
         return df.fillna(""), content["sha"]
-    return pd.DataFrame(), None
+    else:
+        # もしエラーなら、何が起きているか画面に出す
+        st.error(f"❌ ファイルが見つかりません: {file_path} (コード: {res.status_code})")
+        return pd.DataFrame(), None
 
 def update_github_data(file_path, df, sha, message):
     url = f"https://api.github.com/repos/{REPO_NAME}/contents/{file_path}"
