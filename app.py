@@ -10,9 +10,9 @@ def get_now_jst():
 
 # --- 1. 設定（ポートフォリオ用にダミー化） ---
 REPO_NAME = "ttbw0921/demo"
-FILE_PATH_STOCK = "demo/inventory_main.csv"
-FILE_PATH_LOG = "demo/stock_log_main.csv"
-FILE_PATH_RESERVATION = "demo/reservations_main.csv"
+FILE_PATH_STOCK = "inventory_main.csv"
+FILE_PATH_LOG = "stock_log_main.csv"
+FILE_PATH_RESERVATION = "reservations_main.csv"
 GITHUB_TOKEN = st.secrets["GITHUB_TOKEN"]
 
 # マスターデータを一般的な名称に変更
