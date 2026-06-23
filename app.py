@@ -16,7 +16,7 @@ FILE_PATH_RESERVATION = "reservations_main.csv"
 GITHUB_TOKEN = st.secrets["GITHUB_TOKEN"]
 
 # マスターデータを一般的な名称に変更
-SIZES_MASTER = ["大", "小", "中", " - "] 
+SIZES_MASTER = ["大", "中", "小", " - "] 
 VENDORS_MASTER = ["工場A", "工場B", "工場C", "工場D"]
 USERS = ["担当者A", "担当者B", "担当者C"]
 
