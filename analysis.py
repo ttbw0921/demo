@@ -65,7 +65,7 @@ if not df_log_raw.empty:
     with st.sidebar:
         st.markdown("### 🔗 クイック移動")
         c1, c2 = st.columns(2)
-        c1.link_button("📦 在庫管理", "https://zaiko-kanri.streamlit.app/")
+        c1.link_button("📦 在庫管理", "https://tt-demo-zaiko.streamlit.app/")
         c2.link_button("🚚 発注管理", "https://zaiko-kanri-qzelakcnxralslk3ac27ex.streamlit.app/")
         st.divider()
     
