@@ -107,7 +107,7 @@ with st.sidebar:
         st.markdown("### 🔗 クイック移動")
         c1, c2 = st.columns(2)
         c1.link_button("📊 分析画面", "https://tt-demo-analysis.streamlit.app/")
-        c2.link_button("🚚 発注管理", "https://example.com/demo-order")
+        c2.link_button("🚚 発注管理", "https://order-demo.streamlit.app/")
         st.divider()
 
 with st.sidebar:
