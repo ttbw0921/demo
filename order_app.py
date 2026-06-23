@@ -183,16 +183,19 @@ with st.expander(f"🚚 発注済み・入荷待ち ({len(ordered_df)}件)", exp
             disabled=["category", "item_name", "product_name", "vendor", "order_date"],
             key="ordered_editor"
         )
-        if st.button("✅ チェック項目の納品を確認しました", type="primary", use_container_width=True):
-            for i, row in edited_ordered.iterrows():
-                orig_id = row["id"]
-                idx = df_orders[df_orders["id"] == orig_id].index[0]
-                df_orders.at[idx, "quantity"] = row["quantity"]
-                df_orders.at[idx, "delivery_date"] = str(row["delivery_date"])
-                if row["入荷"]:
-                    df_orders.at[idx, "status"] = "完了"
-            update_github_data(FILE_PATH_ORDERS, df_orders, sha_orders, "Delivery Confirmed")
-            st.rerun()
+       if st.form_submit_button("✅ チェックした項目を発注済みにする", use_container_width=True):
+    for oid, v in payload.items():
+        idx = df_orders[df_orders['id'] == oid].index[0]
+        
+        # 1列ずつ安全に型を合わせて代入
+        df_orders.at[idx, "quantity"] = int(v['qty'])
+        df_orders.at[idx, "vendor"] = str(v['vendor'])
+        df_orders.at[idx, "delivery_date"] = str(v['date'])
+        df_orders.at[idx, "status"] = "発注済み"
+        df_orders.at[idx, "order_date"] = get_now_jst().strftime("%Y-%m-%d")
+        
+    update_github_data(FILE_PATH_ORDERS, df_orders, sha_orders, "Ordered")
+    st.rerun()
     else:
         st.write("現在、入荷待ちの資材はありません。")
 
