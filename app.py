@@ -5,17 +5,16 @@ import base64
 import requests
 from io import StringIO
 
-def get_now_jst():
-    return dt.datetime.now(dt.timezone(dt.timedelta(hours=9))).strftime("%Y-%m-%d %H:%M:%S")
+# --- 1. 設定 ---
+# ※ここがGitHubのURLと完全一致しているか確認してください
+REPO_NAME = "ttbw0921/demo" 
+# ファイルは「demoフォルダの中」にあるので、このパスが正解です
+FILE_PATH_STOCK = "demo/inventory_main.csv"
+FILE_PATH_LOG = "demo/stock_log_main.csv"
+FILE_PATH_RESERVATION = "demo/reservations_main.csv"
 
-# --- 1. 設定（ポートフォリオ用にダミー化） ---
-REPO_NAME = "ttbw0921/demo"
-FILE_PATH_STOCK = "inventory_main.csv"
-FILE_PATH_LOG = "stock_log_main.csv"
-FILE_PATH_RESERVATION = "reservations_main.csv"
 GITHUB_TOKEN = st.secrets["GITHUB_TOKEN"]
 
-# マスターデータを一般的な名称に変更
 SIZES_MASTER = ["大", "中", "小", " - "] 
 VENDORS_MASTER = ["工場A", "工場B", "工場C", "工場D"]
 USERS = ["担当者A", "担当者B", "担当者C"]
@@ -23,11 +22,7 @@ USERS = ["担当者A", "担当者B", "担当者C"]
 st.set_page_config(page_title="在庫管理システムDEMO", layout="wide")
 
 # --- 2. GitHub関数 ---
-# --- 2. GitHub関数 ---
 def get_github_data(file_path):
-    # ここに「今どのファイルを読み込もうとしているか」を表示させるコードを追加するよ
-    st.sidebar.write(f"読み込み中: {file_path}") 
-    
     url = f"https://api.github.com/repos/{REPO_NAME}/contents/{file_path}"
     headers = {"Authorization": f"token {GITHUB_TOKEN}"}
     res = requests.get(url, headers=headers)
@@ -38,8 +33,7 @@ def get_github_data(file_path):
         df = pd.read_csv(StringIO(csv_text))
         return df.fillna(""), content["sha"]
     else:
-        # もしエラーなら、何が起きているか画面に出す
-        st.error(f"❌ ファイルが見つかりません: {file_path} (コード: {res.status_code})")
+        st.error(f"❌ 読み込み失敗 ({file_path}): {res.status_code}")
         return pd.DataFrame(), None
 
 def update_github_data(file_path, df, sha, message):
@@ -53,13 +47,15 @@ def update_github_data(file_path, df, sha, message):
     }
     res = requests.put(url, headers=headers, json=data)
     
-    # 💡 ここから下の4行を追加して、エラー内容を画面に出すようにします！
-    if res.status_code != 200:
-        st.error(f"❌ GitHub通信エラー ({file_path}): ステータスコード {res.status_code}")
-        st.error(res.text) # 詳しいエラー理由を表示
-    return res.status_code == 200
+    if res.status_code not in [200, 201]:
+        st.error(f"❌ 更新失敗 ({file_path}): ステータスコード {res.status_code}")
+        st.error(res.text) # 403の場合はここで原因が表示されます
+    return res.status_code in [200, 201]
 
-# 予約を自動処理する関数
+# --- 3. 予約処理 ---
+def get_now_jst():
+    return dt.datetime.now(dt.timezone(dt.timedelta(hours=9))).strftime("%Y-%m-%d %H:%M:%S")
+
 def process_reservations(df_stock, sha_stock, df_log, sha_log):
     df_res, sha_res = get_github_data(FILE_PATH_RESERVATION)
     if df_res.empty: return df_stock, df_log
@@ -83,61 +79,13 @@ def process_reservations(df_stock, sha_stock, df_log, sha_log):
         update_github_data(FILE_PATH_STOCK, df_stock, sha_stock, "Auto Reservation Exec")
         update_github_data(FILE_PATH_LOG, pd.concat([df_log, pd.DataFrame(new_logs)], ignore_index=True), sha_log, "Auto Res Log")
         update_github_data(FILE_PATH_RESERVATION, df_res_remain, sha_res, "Clean up Reservation")
-        st.success(f"📢 本日の出庫予約を在庫に反映しました")
         st.rerun()
     return df_stock, df_log
-
-def get_opts(series):
-    items = sorted([str(x) for x in series.unique() if str(x).strip() != ""])
-    return ["すべて"] + items
-
-def highlight_res_alert(row):
-    styles = [''] * len(row)
-    if "出荷後在庫" in row.index and row["出荷後在庫"] < 0:
-        return ['background-color: #d9534f; color: white'] * len(row)
-    return styles
-
-def highlight_alert(row):
-    styles = [''] * len(row)
-    if "有効在庫" in row.index and row["有効在庫"] < row["アラート基準"]:
-        return ['background-color: #d9534f; color: white'] * len(row)
-    return styles
 
 # データ読み込み
 df_stock, sha_stock = get_github_data(FILE_PATH_STOCK)
 df_log, sha_log = get_github_data(FILE_PATH_LOG)
 df_res_all, sha_res_all = get_github_data(FILE_PATH_RESERVATION)
-df_stock, df_log = process_reservations(df_stock, sha_stock, df_log, sha_log)
-
-# --- 3. サイドバー：新規商品登録 ---
-with st.sidebar:
-        st.markdown("### 🔗 クイック移動")
-        c1, c2 = st.columns(2)
-        c1.link_button("📊 分析画面（DEMO）", "https://example.com/demo-analytics")
-        c2.link_button("🚚 発注管理（DEMO）", "https://example.com/demo-order")
-        st.divider()
-
-with st.sidebar:
-    st.header("✨ 新規商品登録")
-    n_item = st.text_input("商品名", key="sidebar_n_item")
-    n_size = st.selectbox("サイズ", SIZES_MASTER, key="sidebar_n_size")
-    n_loc = st.text_input("拠点・倉庫名", key="sidebar_n_loc") # 「地名」を「拠点・倉庫名」として汎用化
-    n_vendor = st.selectbox("取引先", VENDORS_MASTER, key="sidebar_n_vendor")
-    n_stock = st.number_input("初期在庫", min_value=0, value=0, key="sidebar_n_stock")
-    n_alert = st.number_input("アラート基準", min_value=0, value=5, key="sidebar_n_alert")
-    
-    if st.button("新規登録実行", use_container_width=True, type="primary"):
-        is_duplicate = not df_stock[(df_stock["商品名"] == n_item) & (df_stock["サイズ"] == n_size) & (df_stock["地名"] == n_loc)].empty
-        if is_duplicate:
-            st.error(f"❌ 重複エラー")
-        elif n_item and n_loc:
-            now = get_now_jst()
-            new_row = pd.DataFrame([{"最終更新日": now, "商品名": n_item, "サイズ": n_size, "地名": n_loc, "在庫数": n_stock, "アラート基準": n_alert, "取引先": n_vendor}])
-            new_log = pd.DataFrame([{"日時": now, "商品名": n_item, "サイズ": n_size, "地名": n_loc, "区分": "新規登録", "数量": n_stock, "在庫数": n_stock, "担当者": "システム"}])
-            if update_github_data(FILE_PATH_STOCK, pd.concat([df_stock, new_row], ignore_index=True), sha_stock, "Add Item") and \
-               update_github_data(FILE_PATH_LOG, pd.concat([df_log, pd.DataFrame(new_log)], ignore_index=True), sha_log, "Add Log"):
-                st.success("登録完了")
-                st.rerun()
 
 # --- 4. メイン：在庫一覧 ---
 st.title("📦 在庫管理システム DEMO")
