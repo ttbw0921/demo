@@ -163,6 +163,9 @@ if not pending_df.empty:
             
             # 安全に型を揃えて代入する処理をフォームの「内側」に配置
             if st.form_submit_button("✅ チェックした項目を発注済みにする", use_container_width=True):
+                # ★ここでデータ型をobject（何でも入る型）に一括変換して、空ファイルのときのエラーを強制回避！
+                df_orders = df_orders.astype({"quantity": "object", "vendor": "object", "delivery_date": "object", "order_date": "object", "status": "object"})
+                
                 for oid, v in payload.items():
                     idx = df_orders[df_orders['id'] == oid].index[0]
                     df_orders.at[idx, "quantity"] = int(v['qty'])
