@@ -6,7 +6,7 @@ from datetime import datetime, timedelta, timezone
 import io
 
 # --- 1. 設定（URLバグ防止のため完全に固定） ---
-REPO_NAME = "iplan381/zaiko-kanri"
+REPO_NAME = "ttbw0921/demo"
 FILE_PATH_ORDERS = "order_log.csv"
 FILE_PATH_MASTER = "material_master.csv"
 FILE_PATH_VENDOR = "vendor_master.csv"
