@@ -9,7 +9,7 @@ def get_now_jst():
     return dt.datetime.now(dt.timezone(dt.timedelta(hours=9))).strftime("%Y-%m-%d %H:%M:%S")
 
 # --- 1. 設定（ポートフォリオ用にダミー化） ---
-REPO_NAME = "your-github-id/demo-zaiko-kanri" # 自身の個人リポジトリ名に変更可能
+REPO_NAME = "ttbw0921/demo"
 FILE_PATH_STOCK = "inventory_main.csv"
 FILE_PATH_LOG = "stock_log_main.csv"
 FILE_PATH_RESERVATION = "reservations_main.csv"
