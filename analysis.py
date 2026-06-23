@@ -7,7 +7,7 @@ from io import StringIO
 import datetime as dt
 
 # --- 設定 ---
-REPO_NAME = "iplan381/zaiko-kanri"
+REPO_NAME = "ttbw0921/demo"
 FILE_PATH_LOG = "stock_log_main.csv"
 FILE_PATH_MASTER = "item_master.csv"
 FILE_PATH_RESERVATION = "reservations_main.csv"  # 予約データ用に追加
