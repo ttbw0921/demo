@@ -15,7 +15,6 @@ def get_now_jst():return datetime.now(timezone(timedelta(hours=9)))
 
 # --- 2. GitHub連携関数 ---
 def get_github_data(file_path, default_cols):
-    # ここのURL作成で変な文字が混ざらないように厳密に結合
     url = f"https://api.github.com/repos/{REPO_NAME}/contents/{file_path}"
     headers = {"Authorization": f"token {GITHUB_TOKEN}"}
     res = requests.get(url, headers=headers)
@@ -161,10 +160,16 @@ if not pending_df.empty:
                     "vendor": vendor_input, 
                     "date": date_input
                 }
+            
+            # 安全に型を揃えて代入する処理をフォームの「内側」に配置
             if st.form_submit_button("✅ チェックした項目を発注済みにする", use_container_width=True):
                 for oid, v in payload.items():
                     idx = df_orders[df_orders['id'] == oid].index[0]
-                    df_orders.loc[idx, ["quantity","vendor","delivery_date","status","order_date"]] = [v['qty'], v['vendor'], str(v['date']), "発注済み", get_now_jst().strftime("%Y-%m-%d")]
+                    df_orders.at[idx, "quantity"] = int(v['qty'])
+                    df_orders.at[idx, "vendor"] = str(v['vendor'])
+                    df_orders.at[idx, "delivery_date"] = str(v['date'])
+                    df_orders.at[idx, "status"] = "発注済み"
+                    df_orders.at[idx, "order_date"] = get_now_jst().strftime("%Y-%m-%d")
                 update_github_data(FILE_PATH_ORDERS, df_orders, sha_orders, "Ordered")
                 st.rerun()
 else:
@@ -183,19 +188,16 @@ with st.expander(f"🚚 発注済み・入荷待ち ({len(ordered_df)}件)", exp
             disabled=["category", "item_name", "product_name", "vendor", "order_date"],
             key="ordered_editor"
         )
-      if st.form_submit_button("✅ チェックした項目を発注済みにする", use_container_width=True):
-                for oid, v in payload.items():
-                    idx = df_orders[df_orders['id'] == oid].index[0]
-                    
-                    # 1列ずつ安全に型を合わせて代入
-                    df_orders.at[idx, "quantity"] = int(v['qty'])
-                    df_orders.at[idx, "vendor"] = str(v['vendor'])
-                    df_orders.at[idx, "delivery_date"] = str(v['date'])
-                    df_orders.at[idx, "status"] = "発注済み"
-                    df_orders.at[idx, "order_date"] = get_now_jst().strftime("%Y-%m-%d")
-                    
-                update_github_data(FILE_PATH_ORDERS, df_orders, sha_orders, "Ordered")
-                st.rerun()
+        if st.button("✅ チェック項目の納品を確認しました", type="primary", use_container_width=True):
+            for i, row in edited_ordered.iterrows():
+                orig_id = row["id"]
+                idx = df_orders[df_orders["id"] == orig_id].index[0]
+                df_orders.at[idx, "quantity"] = row["quantity"]
+                df_orders.at[idx, "delivery_date"] = str(row["delivery_date"])
+                if row["入荷"]:
+                    df_orders.at[idx, "status"] = "完了"
+            update_github_data(FILE_PATH_ORDERS, df_orders, sha_orders, "Delivery Confirmed")
+            st.rerun()
     else:
         st.write("現在、入荷待ちの資材はありません。")
 
