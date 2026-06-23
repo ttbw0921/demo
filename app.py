@@ -106,8 +106,8 @@ df_stock, df_log = process_reservations(df_stock, sha_stock, df_log, sha_log)
 with st.sidebar:
         st.markdown("### 🔗 クイック移動")
         c1, c2 = st.columns(2)
-        c1.link_button("📊 分析画面（DEMO）", "https://example.com/demo-analytics")
-        c2.link_button("🚚 発注管理（DEMO）", "https://example.com/demo-order")
+        c1.link_button("📊 分析画面", "https://tt-demo-analysis.streamlit.app/")
+        c2.link_button("🚚 発注管理", "https://example.com/demo-order")
         st.divider()
 
 with st.sidebar:
