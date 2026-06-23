@@ -15,9 +15,8 @@ FILE_PATH_LOG = "stock_log_main.csv"
 FILE_PATH_RESERVATION = "reservations_main.csv"
 GITHUB_TOKEN = st.secrets["GITHUB_TOKEN"]
 
-# 🔴 ここを「大」「小」「4個入」に変更するよ！
 SIZES_MASTER = ["大", "中", "小", " - "] 
-VENDORS_MASTER = ["工場A", "工場B", "工場C", "工場D"] # 取引先も「工場A~D」に合わせるならここも変更
+VENDORS_MASTER = ["工場A", "工場B", "工場C", "工場D"] 
 USERS = ["担当者A", "担当者B", "担当者C"]
 
 st.set_page_config(page_title="在庫管理システムDEMO", layout="wide")
