@@ -138,7 +138,7 @@ st.title("📦 在庫管理システム DEMO")
 c1, c2, c3, c4 = st.columns(4)
 with c1: s_item = st.selectbox("検索:商品名", get_opts(df_stock["商品名"]), key="filter_item")
 with c2: s_size = st.selectbox("検索:サイズ", get_opts(df_stock["サイズ"]), key="filter_size")
-with c3: search_loc = st.text_input("検索:地名（手入力）", placeholder="例: 北海道, key="filter_loc")
+with c3: search_loc = st.text_input("検索:地名（手入力）", placeholder="例: 北海道", key="filter_loc")
 with c4: s_vendor = st.selectbox("検索:取引先", get_opts(df_stock["取引先"]), key="filter_vendor")
 
 # 有効在庫の計算
