@@ -114,7 +114,7 @@ with st.sidebar:
     st.header("✨ 新規商品登録")
     n_item = st.text_input("商品名", key="sidebar_n_item")
     n_size = st.selectbox("サイズ", SIZES_MASTER, key="sidebar_n_size")
-    n_loc = st.text_input("拠点・倉庫名", key="sidebar_n_loc") # 「地名」を「拠点・倉庫名」として汎用化
+    n_loc = st.text_input("地名", key="sidebar_n_loc") # 「地名」を「拠点・倉庫名」として汎用化
     n_vendor = st.selectbox("取引先", VENDORS_MASTER, key="sidebar_n_vendor")
     n_stock = st.number_input("初期在庫", min_value=0, value=0, key="sidebar_n_stock")
     n_alert = st.number_input("アラート基準", min_value=0, value=5, key="sidebar_n_alert")
@@ -138,7 +138,7 @@ st.title("📦 在庫管理システム DEMO")
 c1, c2, c3, c4 = st.columns(4)
 with c1: s_item = st.selectbox("検索:商品名", get_opts(df_stock["商品名"]), key="filter_item")
 with c2: s_size = st.selectbox("検索:サイズ", get_opts(df_stock["サイズ"]), key="filter_size")
-with c3: search_loc = st.text_input("検索:拠点・倉庫名（手入力）", placeholder="例: 東京第一倉庫", key="filter_loc")
+with c3: search_loc = st.text_input("検索:地名（手入力）", placeholder="例: 北海道, key="filter_loc")
 with c4: s_vendor = st.selectbox("検索:取引先", get_opts(df_stock["取引先"]), key="filter_vendor")
 
 # 有効在庫の計算
